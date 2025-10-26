@@ -1,0 +1,40 @@
+definitions:
+  froms.RegisterForm:
+    properties:
+      password:
+        type: string
+      re_password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - re_password
+    - username
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/signup:
+    post:
+      consumes:
+      - application/json
+      description: 注册用户
+      parameters:
+      - description: 注册表单
+        in: body
+        name: form
+        required: true
+        schema:
+          $ref: '#/definitions/froms.RegisterForm'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"code":1000,"msg":"success"}'
+          schema:
+            type: string
+      summary: 注册
+      tags:
+      - user
+swagger: "2.0"
