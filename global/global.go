@@ -45,3 +45,16 @@ func InitRedis() {
 		return
 	}
 }
+
+func Close() {
+	defer func() {
+		sqlDB, _ := DB.DB()
+		sqlDB.Close()
+	}()
+	defer func() {
+		Redis.Close()
+	}()
+	defer func() {
+		Producer.Shutdown()
+	}()
+}

@@ -11,6 +11,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary 获取社区列表
+// @Description 获取社区列表
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /api/v1/community [get]
 func GetCommunityList(c *gin.Context) {
 	communities, err := service.GetCommunityList()
 	if err != nil {
@@ -28,6 +36,15 @@ func GetCommunityList(c *gin.Context) {
 	response.Success(c, rsp)
 }
 
+// @Summary 获取社区详情
+// @Description 获取社区详情
+// @Accept json
+// @Produce json
+// @Param id path int true "社区ID"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /api/v1/community/{id} [get]
 func GetCommunityDetail(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

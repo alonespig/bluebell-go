@@ -29,6 +29,13 @@ func InitRouter() *gin.Engine {
 
 		v1.POST("post", middleware.JWTAuth(), post.CreatePost)
 		v1.GET("post/:id", post.GetPostDetail)
+		v1.GET("posts2", post.GetPostList)
+
+		v1.GET("/users/me/posts", middleware.JWTAuth(), post.GetPostListByUserID)
+		v1.POST("vote", middleware.JWTAuth(), post.VoteForPost)
+		v1.GET("post/:id/vote", middleware.JWTAuth(), post.GetUserVote)
+		v1.PUT("/post/:id", middleware.JWTAuth(), post.UpdatePost)
+		v1.DELETE("/post/:id", middleware.JWTAuth(), post.DeletePost)
 	}
 
 	return router
