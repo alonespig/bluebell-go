@@ -1,10 +1,10 @@
 package router
 
 import (
-	"bluebell/controller/community"
-	"bluebell/controller/post"
-	"bluebell/controller/user"
 	"bluebell/middleware"
+	"bluebell/web/controller/community"
+	"bluebell/web/controller/post"
+	"bluebell/web/controller/user"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -36,6 +36,8 @@ func InitRouter() *gin.Engine {
 		v1.GET("post/:id/vote", middleware.JWTAuth(), post.GetUserVote)
 		v1.PUT("/post/:id", middleware.JWTAuth(), post.UpdatePost)
 		v1.DELETE("/post/:id", middleware.JWTAuth(), post.DeletePost)
+
+		v1.POST("vote/status", middleware.JWTAuth(), post.GetPostListByStatus)
 	}
 
 	return router

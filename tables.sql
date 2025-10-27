@@ -1,3 +1,4 @@
+-- Active: 1757210317713@@127.0.0.1@3306
 -- 帖子统计表
 CREATE TABLE post_stats (
     post_id BIGINT PRIMARY KEY,

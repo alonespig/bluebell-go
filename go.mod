@@ -8,7 +8,12 @@ require (
 	github.com/apache/rocketmq-client-go/v2 v2.1.2
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/gin-gonic/gin v1.11.0
+	github.com/go-playground/locales v0.14.1
+	github.com/go-playground/universal-translator v0.18.1
+	github.com/go-playground/validator/v10 v10.27.0
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/jmoiron/sqlx v1.4.0
 	github.com/redis/go-redis/v9 v9.16.0
 	github.com/spf13/viper v1.21.0
 	github.com/swaggo/files v1.0.1
@@ -38,10 +43,6 @@ require (
 	github.com/go-openapi/jsonreference v0.19.6 // indirect
 	github.com/go-openapi/spec v0.20.4 // indirect
 	github.com/go-openapi/swag v0.19.15 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.27.0 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/goccy/go-yaml v1.18.0 // indirect

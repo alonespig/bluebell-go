@@ -25,7 +25,7 @@ type PostDetailResponse struct {
 
 type VotePostForm struct {
 	PostID    int `json:"post_id" binding:"required"`
-	Direction int `json:"direction" binding:"required"`
+	Direction int `json:"direction" binding:"oneof=1 0 -1"`
 }
 
 type PostInfoResponse struct {
@@ -38,4 +38,8 @@ type PostInfoResponse struct {
 type UpdatePostForm struct {
 	Title   string `json:"title" binding:"required"`
 	Content string `json:"content" binding:"required"`
+}
+
+type GetPostListStatusForm struct {
+	PostIDs []int `json:"post_ids"`
 }

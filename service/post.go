@@ -160,3 +160,12 @@ func UpdatePost(authorID, postID int, title, content string) error {
 func DeletePost(authorID, postID int) error {
 	return repository.DeletePost(authorID, postID)
 }
+
+// GetPostListByStatus 获取帖子列表状态
+func GetPostListByStatus(postIDs []int, userID int) ([]int, error) {
+	postsStatus := make([]int, len(postIDs))
+	for i, postID := range postIDs {
+		postsStatus[i], _ = repository.GetUserVote(userID, postID)
+	}
+	return postsStatus, nil
+}

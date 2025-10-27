@@ -2,6 +2,7 @@ package post
 
 import (
 	"bluebell/froms"
+	"bluebell/global"
 	"bluebell/model"
 	"bluebell/pkg/code"
 	"bluebell/pkg/response"
@@ -11,7 +12,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
+	"github.com/go-playground/validator/v10"
 )
 
 // @Summary 创建帖子
@@ -118,7 +119,15 @@ func GetPostList(c *gin.Context) {
 func VoteForPost(c *gin.Context) {
 	var form froms.VotePostForm
 	if err := c.ShouldBindJSON(&form); err != nil {
-		zap.S().Info("VoteForPost error", zap.Error(err))
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			// 翻译成中文
+			messages := make([]string, 0)
+			for _, e := range errs {
+				messages = append(messages, e.Translate(global.Trans))
+			}
+			response.JSON(c, http.StatusBadRequest, code.InvalidParams, messages)
+			return
+		}
 		response.JSON(c, http.StatusBadRequest, code.InvalidParams, nil)
 		return
 	}
@@ -234,6 +243,16 @@ func UpdatePost(c *gin.Context) {
 	response.Success(c, nil)
 }
 
+// @Summary 删除帖子
+// @Description 删除帖子
+// @Accept json
+// @Produce json
+// @Param id path int true "帖子ID"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /api/v1/post/{id} [delete]
+// @Security ApiKeyAuth
 func DeletePost(c *gin.Context) {
 	postID := c.Param("id")
 	postIDInt, err := strconv.Atoi(postID)
@@ -252,4 +271,42 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 	response.Success(c, nil)
+}
+
+// @Summary 获取帖子列表状态
+// @Description 获取帖子列表状态
+// @Accept json
+// @Produce json
+// @Param form body froms.GetPostListStatusForm true "帖子列表状态表单"
+// @Success 200 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /api/v1/post/status [get]
+func GetPostListByStatus(c *gin.Context) {
+	var form froms.GetPostListStatusForm
+	if err := c.ShouldBindJSON(&form); err != nil {
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			// 翻译成中文
+			messages := make([]string, 0)
+			for _, e := range errs {
+				messages = append(messages, e.Translate(global.Trans))
+			}
+			response.JSON(c, http.StatusBadRequest, code.InvalidParams, messages)
+			return
+		}
+		response.JSON(c, http.StatusBadRequest, code.InvalidParams, nil)
+		return
+	}
+	userID, exists := c.Get("userID")
+	if !exists {
+		response.JSON(c, http.StatusUnauthorized, code.InvalidToken, nil)
+		return
+	}
+	userIDInt := userID.(int)
+	postList, err := service.GetPostListByStatus(form.PostIDs, userIDInt)
+	if err != nil {
+		response.JSON(c, http.StatusInternalServerError, code.InternalServerError, err.Error())
+		return
+	}
+	response.Success(c, postList)
 }

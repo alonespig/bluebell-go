@@ -3,19 +3,18 @@ package main
 import (
 	"bluebell/config"
 	"bluebell/global"
-	"bluebell/logger"
 	"bluebell/pkg/snowflake"
-	"bluebell/router"
+	"bluebell/web/router"
 )
 
 func init() {
-	logger.InitLogger()
+	global.InitLogger()
 	global.Config = config.InitConfig()
 	global.InitMysql()
 	global.InitRedis()
 	global.InitProducer()
+	global.InitTranslation()
 	snowflake.Init("2025-01-01", 1)
-
 }
 
 func main() {
