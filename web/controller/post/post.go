@@ -221,6 +221,15 @@ func GetPostListByUserID(c *gin.Context) {
 func UpdatePost(c *gin.Context) {
 	var form froms.UpdatePostForm
 	if err := c.ShouldBindJSON(&form); err != nil {
+		if errs, ok := err.(validator.ValidationErrors); ok {
+			// 翻译成中文
+			messages := make([]string, 0)
+			for _, e := range errs {
+				messages = append(messages, e.Translate(global.Trans))
+			}
+			response.JSON(c, http.StatusBadRequest, code.InvalidParams, messages)
+			return
+		}
 		response.JSON(c, http.StatusBadRequest, code.InvalidParams, nil)
 		return
 	}

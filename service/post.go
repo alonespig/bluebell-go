@@ -2,11 +2,17 @@ package service
 
 import (
 	"bluebell/froms"
+	"bluebell/global"
 	"bluebell/message"
 	"bluebell/model"
 	"bluebell/repository"
 	"context"
+	"encoding/json"
 	"errors"
+	"fmt"
+	"time"
+
+	"go.uber.org/zap"
 )
 
 // CreatePost 创建帖子
@@ -14,12 +20,50 @@ func CreatePost(post *model.Post) error {
 	return repository.CreatePost(post)
 }
 
-// GetPostDetail 获取帖子详情
-func GetPostDetail(postID int) (*froms.PostDetailResponse, error) {
-	post, err := repository.GetPostDetail(postID)
+func GetPostDetailInRedis(postID int) (*model.Post, error) {
+	key := fmt.Sprintf("post:%d", postID)
+	data, err := global.Redis.Get(context.Background(), key).Result()
 	if err != nil {
 		return nil, err
 	}
+	var post model.Post
+	err = json.Unmarshal([]byte(data), &post)
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+func PushPostDetailInRedis(post *model.Post) error {
+	key := fmt.Sprintf("post:%d", post.ID)
+	data, err := json.Marshal(post)
+	if err != nil {
+		return err
+	}
+	return global.Redis.Set(context.Background(), key, data, 2*time.Minute).Err()
+}
+
+func DeletePostDetailInRedis(postID int) error {
+	key := fmt.Sprintf("post:%d", postID)
+	return global.Redis.Del(context.Background(), key).Err()
+}
+
+// GetPostDetail 获取帖子详情
+func GetPostDetail(postID int) (*froms.PostDetailResponse, error) {
+	var post *model.Post
+	var err error
+	post, err = GetPostDetailInRedis(postID)
+	if err != nil {
+		post, err = repository.GetPostDetail(postID)
+		if err != nil {
+			return nil, err
+		}
+		err = PushPostDetailInRedis(post)
+		if err != nil {
+			zap.S().Info("push post detail to redis failed", zap.Error(err))
+		}
+	}
+
 	community, err := repository.GetCommunityDetail(post.CommunityID)
 	if err != nil {
 		return nil, err
@@ -153,7 +197,20 @@ func GetPostListByUserID(userID int) ([]*froms.PostInfoResponse, error) {
 
 // UpdatePost 更新帖子
 func UpdatePost(authorID, postID int, title, content string) error {
-	return repository.UpdatePost(authorID, postID, title, content)
+	err := repository.UpdatePost(authorID, postID, title, content)
+	if err != nil {
+		zap.S().Info("update post failed", zap.Error(err))
+		return err
+	}
+	err = DeletePostDetailInRedis(postID)
+	if err != nil {
+		zap.S().Info("delete post detail from redis failed", zap.Error(err))
+	}
+	go func() {
+		time.Sleep(500 * time.Millisecond)
+		DeletePostDetailInRedis(postID)
+	}()
+	return nil
 }
 
 // DeletePost 删除帖子
